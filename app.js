@@ -5,12 +5,10 @@ var logger = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 
-var index = require('./routes/index');
-var users = require('./routes/users');
 var api = require('./routes/api');
 var mongoose = require('mongoose');
 var session = require('express-session');
-
+var braintree = require('braintree');
 require('dotenv').load();
 
 var app = express();
@@ -39,12 +37,28 @@ app.use(session({
 }));
 
 // jinyiabc-facilitator@gmail.com
+//access_token$sandbox$gf77t9gwthf52zf6$828a2cf4888e589c4cbd868309dcf101
 // jinyiabc-buyer@gmail.com
 
 
 
 app.get('/', function(req, res, next) {
     res.sendFile(__dirname + '/index.html');
+});
+
+var gateway = braintree.connect({
+  accessToken: 'access_token$sandbox$gf77t9gwthf52zf6$828a2cf4888e589c4cbd868309dcf101'
+});
+
+app.get("/client_token", function (req, res) {
+  gateway.clientToken.generate({}, function (err, response) {
+    res.send(response.clientToken);
+  });
+});
+
+app.post("/checkout", function (req, res) {
+  var nonce = req.body.payment_method_nonce;
+  // Use payment method nonce here
 });
 
 
