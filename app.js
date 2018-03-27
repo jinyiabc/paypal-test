@@ -8,8 +8,16 @@ var bodyParser = require('body-parser');
 var api = require('./routes/api');
 var mongoose = require('mongoose');
 var session = require('express-session');
-var braintree = require('braintree');
+// var braintree = require('braintree');
 require('dotenv').load();
+
+var paypal = require('paypal-rest-sdk');
+paypal.configure({
+  'mode': 'sandbox', //sandbox or live
+  'client_id': process.env.client_id,
+  'client_secret': process.env.secret
+});
+
 
 var app = express();
 // connect to mongoDB
@@ -36,9 +44,7 @@ app.use(session({
   saveUninitialized: true
 }));
 
-// jinyiabc-facilitator@gmail.com
-//access_token$sandbox$gf77t9gwthf52zf6$828a2cf4888e589c4cbd868309dcf101
-// jinyiabc-buyer@gmail.com
+
 
 
 
@@ -46,24 +52,83 @@ app.get('/', function(req, res, next) {
     res.sendFile(__dirname + '/index.html');
 });
 
-var gateway = braintree.connect({
-  accessToken: 'access_token$sandbox$gf77t9gwthf52zf6$828a2cf4888e589c4cbd868309dcf101'
+app.post('/api/paypal/payment/create', function(req, res){
+
+    // console.log(req.body.user.name);
+    // console.log(req.body.user.email);
+// Build PayPal payment request
+var payReq = JSON.stringify({
+  intent:'sale',
+  payer:{
+    payment_method:'paypal'
+  },
+  redirect_urls:{
+    return_url: process.env.app_url + '/process',
+    cancel_url: process.env.app_url + '/cancel'
+  },
+  transactions:[{
+    amount:{
+      total:'10',
+      currency:'USD'
+    },
+    description:'This is the payment transaction description.'
+  }]
 });
 
-app.get("/client_token", function (req, res) {
-  gateway.clientToken.generate({}, function (err, response) {
-    res.send(response.clientToken);
-  });
+paypal.payment.create(payReq, function(error, payment){
+  var links = {};
+
+  if(error){
+    console.error(JSON.stringify(error));
+  } else {
+    // Capture HATEOAS links
+    payment.links.forEach(function(linkObj){
+      links[linkObj.rel] = {
+        href: linkObj.href,
+        method: linkObj.method
+      };
+    })
+
+    // If redirect url present, redirect user
+    if (links.hasOwnProperty('approval_url')){
+      //REDIRECT USER TO links['approval_url'].href
+      console.log('approval_url:',links['approval_url']);
+
+      res.redirect(links['approval_url'].href);
+    } else {
+      console.error('no redirect URI present');
+    }
+  }
 });
 
-app.post("/checkout", function (req, res) {
-  var nonce = req.body.payment_method_nonce;
-  // Use payment method nonce here
-});
+});  // end of creation on paypal payment
 
+app.use('/process',function(req,res){
+    console.log('PayerID:',req.query.PayerID);
+    console.log('paymentId:',req.query.paymentId);
+    // res.send('works!');
+    var execute_payment_json = {
+        "payer_id": req.query.PayerID,
+        "transactions": [{
+            "amount": {
+                "currency": "USD",
+                "total": "1.00"
+            }
+        }]
+    };
+    var paymentId = req.query.paymentId;
+    paypal.payment.execute(paymentId, execute_payment_json, function (error, payment) {
+        if (error) {
+            console.log(error.response);
+            throw error;
+        } else {
+            console.log("Get Payment Response");
+            console.log(JSON.stringify(payment));
+            res.send(JSON.stringify(payment));
+        }
+    });
 
-
-
+})
 
 
 
