@@ -10,7 +10,7 @@ var mongoose = require('mongoose');
 var session = require('express-session');
 // var braintree = require('braintree');
 require('dotenv').load();
-
+var cors = require('cors');
 var paypal = require('paypal-rest-sdk');
 paypal.configure({
   'mode': 'sandbox', //sandbox or live
@@ -20,6 +20,8 @@ paypal.configure({
 
 
 var app = express();
+app.use(cors())
+
 // connect to mongoDB
 // mongoose.connect('mongodb://localhost/users');
 mongoose.connect(process.env.MONGO_URI);
@@ -63,7 +65,7 @@ var payReq = JSON.stringify({
     payment_method:'paypal'
   },
   redirect_urls:{
-    return_url: process.env.app_url + '/process',
+    return_url: process.env.app_url + '/api/paypal/payment/execute',
     cancel_url: process.env.app_url + '/cancel'
   },
   transactions:[{
@@ -103,7 +105,7 @@ paypal.payment.create(payReq, function(error, payment){
 
 });  // end of creation on paypal payment
 
-app.use('/process',function(req,res){
+app.use('/api/paypal/payment/execute',function(req,res){
     console.log('PayerID:',req.query.PayerID);
     console.log('paymentId:',req.query.paymentId);
     // res.send('works!');
