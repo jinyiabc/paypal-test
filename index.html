@@ -3,10 +3,69 @@
 <head>
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <script src="https://www.paypalobjects.com/api/checkout.js"></script>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+
+<style media="screen">
+.pp-checkout {
+color: transparent;
+font: 0/0 a;
+text-shadow: none;
+width: 195px;
+height: 37px;
+background: url(https://www.paypalobjects.com/webstatic/en_US/i/buttons/checkout-logo-medium.png) center 48%/auto 37px no-repeat;
+-ms-border-radius: 5px;
+-o-border-radius: 5px;
+border-radius: 5px;
+box-shadow: inset 0 1px 0 0 #fff6e9;
+vertical-align: baseline;
+zoom: 1;
+float: left;
+display: block;
+}
+</style>
+
+
 </head>
 
 <body>
+    <div class="containter">
+
+    <div class="cart-list boxed-content narrow-margin">
+        <table colspan="12" class="table">
+            <caption>SHOPPING CART</caption>
+            <colgroup>
+                <col span="2" title="ITEMS" class="col-items">
+                <col span="4" title="DETAILS" class="col-details">
+                <col span="2" title="PRICE" class="col-price">
+                <col span="1" title="QUANTITY" class="col-qty">
+                <col span="3" title="TOTAL" class="col-total">
+            </colgroup>
+            <thead class="show-for-medium">
+                <tr><th class="cart-items" scope="col">ITEMS</th>
+                    <th class="cart-details" scope="col">DETAILS</th>
+                    <th class="cart-price" scope="col">PRICE</th>
+                    <th class="cart-qty" scope="col">QUANTITY</th>
+                    <th class="cart-total" scope="col">TOTAL</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <th class="cart-items" scope="row">
+                        <img src="https://demo.paypal.com/demo/img/merchantimages/camera-lg.jpg" alt="CAMERA">
+                        <!-- <span class="remove">remove</span>
+                        <span class="wishlist">WISH LIST</span> -->
+                    </th>
+                    <td class="cart-details"><p>Lorem Ipsum proin gravida nibh vel velit auctor aliquet.Aenean sollicitudin, lorem.</p><p>ITEM #: 123456789</p></td>
+                    <td class="cart-price">$300.00</td><td class="cart-qty"><span>1</span></td>
+                    <td class="cart-total">$300.00</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    </div>
+
+
+    <!-- <a  class="pp-checkout btn">Express Checkout</a> -->
     <!-- <form id="testimonial form" method = "POST" action = "/profile">
     <label for="firstname">First Name</label>
     <input type="text" id="firstname" name="firstname">
@@ -31,54 +90,16 @@
     <input type="submit" value="Submit">
 </form> -->
     <form method="post" action="/api/paypal/payment/create">
-        <input type="text" name="user[name]">
-        <input type="text" name="user[email]">
-        <input type="submit" value="Submit">
+        <!-- <input type="text" name="user[name]">
+        <input type="text" name="user[email]"> -->
+        <input type="submit" class="pp-checkout " value="Submit">
     </form>
+    <div id="info"></div>
 
-    <div id="paypal-button-container"></div>
-    <script>
-        paypal.Button.render({
 
-            env: 'sandbox', // sandbox | production
-
-            // Show the buyer a 'Pay Now' button in the checkout flow
-            commit: true,
-
-            // payment() is called when the button is clicked
-            payment: function() {
-
-                // Set up a url on your server to create the payment
-                var CREATE_URL = '/api/paypal/payment/create/';
-
-                // Make a call to your server to set up the payment
-                return paypal.request.post(CREATE_URL)
-                    .then(function(res) {
-                        return res.paymentID;
-                    });
-            },
-
-            // onAuthorize() is called when the buyer approves the payment
-            onAuthorize: function(data, actions) {
-
-                // Set up a url on your server to execute the payment
-                var EXECUTE_URL = '/api/paypal/payment/execute/';
-
-                // Set up the data you need to pass to your server
-                var data = {
-                    paymentID: data.paymentID,
-                    payerID: data.payerID
-                };
-
-                // Make a call to your server to execute the payment
-                return paypal.request.post(EXECUTE_URL, data)
-                    .then(function (res) {
-                        window.alert('Payment Complete!');
-                    });
-            }
-
-        }, '#paypal-button-container');
-    </script>
+<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
 </body>
 
 </html>

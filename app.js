@@ -48,7 +48,16 @@ app.use(session({
 
 
 
-
+app.get('/test',function(req,res){
+    console.log('GET WORKS');
+    res.send({"data":"test"})
+    // res.redirect('https://www.google.com');
+})
+    .post('/test', function(req,res){
+        console.log('TEST WORKS');
+        // res.send('test works!')
+        res.redirect('https://www.google.com');
+    });
 
 app.get('/', function(req, res, next) {
     res.sendFile(__dirname + '/index.html');
@@ -68,12 +77,29 @@ var payReq = JSON.stringify({
     return_url: process.env.app_url + '/api/paypal/payment/execute',
     cancel_url: process.env.app_url + '/cancel'
   },
-  transactions:[{
-    amount:{
-      total:'10',
-      currency:'USD'
-    },
-    description:'This is the payment transaction description.'
+  "transactions": [{
+      "item_list": {
+          "items": [{
+              "name": "item",
+              "sku": "item",
+              "price": "1.00",
+              "currency": "USD",
+              "quantity": 1
+          }],
+          "shipping_address": {
+              "recipient_name": "Betsy Buyer",
+              "line1": "111 First Street",
+              "city": "Saratoga",
+              "country_code": "US",
+              "postal_code": "95070",
+              "state": "CA"
+          }
+      },
+      "amount": {
+          "currency": "USD",
+          "total": "1.00"
+      },
+      "description": "This is the payment description."
   }]
 });
 
@@ -97,6 +123,7 @@ paypal.payment.create(payReq, function(error, payment){
       console.log('approval_url:',links['approval_url']);
 
       res.redirect(links['approval_url'].href);
+      // res.send(links['approval_url'].href);
     } else {
       console.error('no redirect URI present');
     }

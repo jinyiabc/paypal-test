@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+    <head>
+        <meta charset="utf-8">
+        <title></title>
+        <script src="https://code.jquery.com/jquery-1.11.0.js"></script>
+    </head>
+    <body>
+        <button id="action-button">Click me to load info!</button>
+        <div id="info"></div>
+        <small>Demo created by <a href="https://twitter.com/AurelioDeRosa">Aurelio De Rosa</a></small>
+    </body>
+    <script type="text/javascript">
+    $('#action-button').click(function() {
+       $.ajax({
+          url: 'http://localhost:3000/test',
+          data: {
+             format: 'json'
+          },
+          error: function() {
+             console.log('err');
+          },
+          // dataType: 'jsonp',
+          success: function(data) {
+             console.log(data);
+             // var $title = $('<h1>').text(data.talks[0].talk_title);
+             // var $description = $('<p>').text(data.talks[0].talk_description);
+             // $('#info')
+             //    .append($title)
+             //    .append($description);
+          },
+          type: 'GET'
+       });
+    });
+
+    </script>
+</html>
