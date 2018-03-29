@@ -31,8 +31,12 @@ mongoose.Promise = global.Promise;
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
 
-app.use('/public', express.static(process.cwd() + '/public'));
 
+var distDir = __dirname + "/dist/";
+app.use(express.static(distDir));
+app.use('/login',function(req,res){
+    res.sendFile(__dirname + '/dist/index.html');
+});
 
 // uncomment after placing your favicon in /public
 //app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));

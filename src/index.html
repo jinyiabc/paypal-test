@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Paypal</title>
+  <base href="/">
+
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="icon" type="image/x-icon" href="favicon.ico">
+  <link rel="stylesheet"
+       href="https://unpkg.com/bootstrap@3.3.7/dist/css/bootstrap.min.css">
+</head>
+<body>
+    <div class="containter">
+
+    <div class="cart-list boxed-content narrow-margin">
+        <h1>SHOPPING CART</h1>
+        <table colspan="12" class="table">
+            <colgroup>
+                <col span="2" title="ITEMS" class="col-items">
+                <col span="4" title="DETAILS" class="col-details">
+                <col span="2" title="PRICE" class="col-price">
+                <col span="1" title="QUANTITY" class="col-qty">
+                <col span="3" title="TOTAL" class="col-total">
+            </colgroup>
+            <thead class="show-for-medium">
+                <tr><th class="cart-items" scope="col">ITEMS</th>
+                    <th class="cart-details" scope="col">DETAILS</th>
+                    <th class="cart-price" scope="col">PRICE</th>
+                    <th class="cart-qty" scope="col">QUANTITY</th>
+                    <th class="cart-total" scope="col">TOTAL</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <th class="cart-items" scope="row">
+                        <img src="https://demo.paypal.com/demo/img/merchantimages/camera-lg.jpg" alt="CAMERA">
+                    </th>
+                    <td class="cart-details"><p>Lorem Ipsum proin gravida nibh vel velit auctor aliquet.Aenean sollicitudin, lorem.</p><p>ITEM #: 123456789</p></td>
+                    <td class="cart-price">$300.00</td><td class="cart-qty"><span>1</span></td>
+                    <td class="cart-total">$300.00</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    </div>
+
+  <app-root></app-root>
+  <form method="post" action="/api/paypal/payment/create">
+      <input type="submit" class="pp-checkout " value="Submit">
+  </form>
+  <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+</body>
+</html>
