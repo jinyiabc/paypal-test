@@ -14,7 +14,7 @@ console.log('environment',process.env.app_url);
   });
 // Build PayPal payment request
 var payReq = JSON.stringify({
-  intent:'sale',
+  intent:'authorize',
   payer:{
     payment_method:'paypal'
   },
@@ -30,8 +30,8 @@ var payReq = JSON.stringify({
               "price": "1.00",
               "currency": "USD",
               "quantity": 1
-          }],
-          "shipping_address": req.body
+          }]
+          // "shipping_address": req.body
       },
       "amount": {
           "currency": "USD",
@@ -42,6 +42,8 @@ var payReq = JSON.stringify({
 });
 
 paypal.payment.create(payReq, function(error, payment){
+
+    console.log(payment);
   var links = {};
 
   if(error){
@@ -60,12 +62,17 @@ paypal.payment.create(payReq, function(error, payment){
       //REDIRECT USER TO links['approval_url'].href
       console.log('approval_url:',links['approval_url']);
 
+      //
+      // approval_url: { href: 'https://www.sandbox.paypal.com/cgi-bin/webscr?cmd=_express-checkout&token=EC-8UH31611V2885582J',
+      //   method: 'REDIRECT' }
+
 
       // res.writeHead(302,  {'Location': links['approval_url'].href ,
       //                      'Access-Control-Allow-Origin' : '*'});
       // res.end();
 
       res.redirect(links['approval_url'].href);
+      // res.send('EC-05A67881TT211273E');
       // res.redirect('/test')
     } else {
       console.error('no redirect URI present');

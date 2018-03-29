@@ -50,7 +50,7 @@ var AddressService = /** @class */ (function () {
     AddressService.prototype.shipAddress = function (address) {
         var httpOptions = {
             headers: new __WEBPACK_IMPORTED_MODULE_1__angular_common_http__["c" /* HttpHeaders */]({
-                'Content-Type': 'application/json' //application/x-www-form-urlencoded  multipart/form-data
+                'Content-Type': 'text/plain' //application/x-www-form-urlencoded  multipart/form-data
             })
         };
         var addUrl1 = __WEBPACK_IMPORTED_MODULE_5__environments_environment__["a" /* environment */].app_url + '/api/paypal/payment/create';
