@@ -1,134 +1,105 @@
 const express = require('express');
 const router = express.Router();
-const User = require('../models/users');
+var paypal = require('paypal-rest-sdk');
+require('dotenv').load();
 
-// Get a list of polls from the db
-router.get('/:userId/polls',function(req,res,next){
-  const query = {'github.username':req.params.userId};
-  User.find(query).then(function(results){
-    res.send(results);
+router.post('/paypal/payment/create',function(req, res){
+
+console.log('environment',process.env.app_url);
+    //console.log(req.body);
+  paypal.configure({
+    'mode': 'sandbox', //sandbox or live
+    'client_id': process.env.client_id,
+    'client_secret': process.env.secret
   });
+// Build PayPal payment request
+var payReq = JSON.stringify({
+  intent:'sale',
+  payer:{
+    payment_method:'paypal'
+  },
+  'redirect_urls':{
+    'return_url': process.env.app_url + '/api/paypal/payment/execute',
+    'cancel_url': process.env.app_url + '/cancel'
+  },
+  "transactions": [{
+      "item_list": {
+          "items": [{
+              "name": "item",
+              "sku": "item",
+              "price": "1.00",
+              "currency": "USD",
+              "quantity": 1
+          }],
+          "shipping_address": req.body
+      },
+      "amount": {
+          "currency": "USD",
+          "total": "1.00"
+      },
+      "description": "This is the payment description."
+  }]
 });
 
-// Get single poll from users
-router.get('/:userId/polls/poll',function(req,res,next){
-  const query = {'github.username':req.params.userId };
+paypal.payment.create(payReq, function(error, payment){
+  var links = {};
 
-  console.log(req.query.index);   // parse from clent.
-
-  User.find(query).then(function(results){
-    res.send(results);
-  });
-});
-
-// Get all polls from all users
-router.get('/polls',function(req,res,next){
-  const query = {};
-
-  User.find(query).then(function(results){
-    console.log(results);
-    res.send(results);
-  });
-});
-
-
-// Add a new poll to the db
-router.post('/:userId/polls',function(req,res,next){
-  const query = {'github.username':req.params.userId};
-//   req.body = {
-// 	              "title":"Thor or Camption America?",
-// 	              "options":["Thor","Camption America","Iron Man"]
-//              }
-  const update = {polls: {
-                        $each:[ req.body ],
-                        $sort: { score: -1 }
-                      }
-                 };
-  User.findOneAndUpdate(query,{$push:update},{upsert: true}).then(function(){   //upsert: bool - creates the object if it doesn't exist. defaults to false.
-
-    User.findOne(query).then(function(user){
-      res.send(user);
+  if(error){
+    console.error(JSON.stringify(error));
+  } else {
+    // Capture HATEOAS links
+    payment.links.forEach(function(linkObj){
+      links[linkObj.rel] = {
+        href: linkObj.href,
+        method: linkObj.method
+      };
     })
-  }).catch(next);
 
-});
-
-// Update a poll in the db
-
-// db.collection.update({ d : 2014001 , m :123456789},
-//                       {$pull : { "topups.data" : {"val":NumberLong(200)} } } )
-router.put('/:userId/polls',function(req,res,next){
-  var ip = (req.headers['x-forwarded-for'] ||
-       req.connection.remoteAddress ||
-       req.socket.remoteAddress ||
-       req.connection.socket.remoteAddress).split(",")[0];
-  console.log('ip',ip);
-
-  const query_ip = { 'github.username':req.params.userId,
-                     'polls':{
-                              $all:[
-                                    {"$elemMatch": { "ip":ip, 'title': req.body.title}}
-                                   ]
-                            }
-                   }
+    // If redirect url present, redirect user
+    if (links.hasOwnProperty('approval_url')){
+      //REDIRECT USER TO links['approval_url'].href
+      console.log('approval_url:',links['approval_url']);
 
 
-  User.findOne(query_ip).then(function(result){
-    if(result){
-      console.log('You have already voted for this poll. You are allowed only once.');
-      res.send('match')
+      // res.writeHead(302,  {'Location': links['approval_url'].href ,
+      //                      'Access-Control-Allow-Origin' : '*'});
+      // res.end();
+
+      res.redirect(links['approval_url'].href);
+      // res.redirect('/test')
+    } else {
+      console.error('no redirect URI present');
     }
-    else {
-     // Vote since the uer ip does not exist in polls.
-      const query = { 'github.username':req.params.userId,
-                      'polls.title':req.body.title}
-      const update = {
-                      $set:{'polls.$.options':req.body.options},
-                      $push:{'polls.$.ip':ip}
-                    };
-      User.updateOne(query,update,{upsert: true}).then(function(){   //upsert: bool - creates the object if it doesn't exist. defaults to false.
-
-        User.findOne(query).then(function(user){
-          res.send(user);
-        })
-      }).catch(next);
-
-    }
-  });
-
+  }
 });
 
-// Delete a poll from the db
-router.delete('/:userId/polls',function(req,res,next){
-  console.log(req.query.title);
-  const query = { 'github.username':req.params.userId}
-  const update = {
-                  $pull:{'polls':{"title":req.query.title}}
-                };
+});  // end of creation on paypal payment
 
+router.use('/paypal/payment/execute',function(req,res){
+    console.log('PayerID:',req.query.PayerID);
+    console.log('paymentId:',req.query.paymentId);
+    // res.send('works!');
+    var execute_payment_json = {
+        "payer_id": req.query.PayerID,
+        "transactions": [{
+            "amount": {
+                "currency": "USD",
+                "total": "1.00"
+            }
+        }]
+    };
+    var paymentId = req.query.paymentId;
+    paypal.payment.execute(paymentId, execute_payment_json, function (error, payment) {
+        if (error) {
+            console.log(error.response);
+            throw error;
+        } else {
+            console.log("Get Payment Response");
+            console.log(JSON.stringify(payment));
+            res.send(JSON.stringify(payment));
+        }
+    });
 
-  User.updateOne(query,update,{upsert: true}).then(function(){   //upsert: bool - creates the object if it doesn't exist. defaults to false.
-
-    User.findOne(query).then(function(user){
-      res.send(user);
-    })
-  }).catch(next);
-});
-
-// Delete an option form the poll
-router.delete('/:userId/polls/poll',function(req,res,next){
-  const query = { 'github.username':req.params.userId}
-  const update = {
-                  $pull:{'polls':{"title":req.body.title}}
-                };
-
-
-  User.updateOne(query,update,{upsert: true}).then(function(){   //upsert: bool - creates the object if it doesn't exist. defaults to false.
-
-    User.findOne(query).then(function(user){
-      res.send(user);
-    })
-  }).catch(next);
-});
+})
 
 module.exports = router;

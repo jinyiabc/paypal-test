@@ -3,7 +3,7 @@
     <form (ngSubmit)="onSubmit($event)" #heroForm="ngForm">
       <div class="form-group">
         <label for="name">recipient_name</label>
-        <input type="text" class="form-control" id="recipient_name"
+        <input type="text" class="form-control" id="recipient_name" autocomplete='recipient_name'
                required
                [(ngModel)]="address.recipient_name" name="recipient_name"
                #name="ngModel">
@@ -11,31 +11,31 @@
 
       <div class="form-group">
         <label for="line1">line1</label>
-        <input type="text" class="form-control" id="line1"
+        <input type="text" class="form-control" id="line1" autocomplete='line1'
                [(ngModel)]="address.line1" name="line1">
       </div>
 
       <div class="form-group">
         <label for="city">city</label>
-        <input type="text" class="form-control" id="city"
+        <input type="text" class="form-control" id="city" autocomplete='city'
                [(ngModel)]="address.city" name="city">
       </div>
 
       <div class="form-group">
         <label for="country_code">country_code</label>
-        <input type="text" class="form-control" id="country_code"
+        <input type="text" class="form-control" id="country_code" autocomplete='country_code'
                [(ngModel)]="address.country_code" name="country_code">
       </div>
 
       <div class="form-group">
         <label for="country_code">postal_code</label>
-        <input type="text" class="form-control" id="postal_code"
+        <input type="text" class="form-control" id="postal_code" autocomplete='postal-code'
                [(ngModel)]="address.postal_code" name="postal_code">
       </div>
 
       <div class="form-group">
         <label for="country_code">state</label>
-        <input type="text" class="form-control" id="state"
+        <input type="text" class="form-control" id="state" autocomplete='state'
                [(ngModel)]="address.state" name="state">
       </div>
 

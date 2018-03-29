@@ -11,12 +11,12 @@ var session = require('express-session');
 // var braintree = require('braintree');
 require('dotenv').load();
 var cors = require('cors');
-var paypal = require('paypal-rest-sdk');
-paypal.configure({
-  'mode': 'sandbox', //sandbox or live
-  'client_id': process.env.client_id,
-  'client_secret': process.env.secret
-});
+// var paypal = require('paypal-rest-sdk');
+// paypal.configure({
+//   'mode': 'sandbox', //sandbox or live
+//   'client_id': process.env.client_id,
+//   'client_secret': process.env.secret
+// });
 
 
 var app = express();
@@ -32,11 +32,11 @@ app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
 
 
-var distDir = __dirname + "/dist/";
-app.use(express.static(distDir));
-app.use('/login',function(req,res){
-    res.sendFile(__dirname + '/dist/index.html');
-});
+// var distDir = __dirname + "/dist/";
+// app.use(express.static(distDir));
+// app.use('/login',function(req,res){
+//     res.sendFile(__dirname + '/dist/index.html');
+// });
 
 // uncomment after placing your favicon in /public
 //app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
@@ -55,127 +55,22 @@ app.use(session({
 app.get('/test',function(req,res){
     console.log('GET WORKS');
     // res.send({"data":"test"})
-    res.redirect('https://www.google.com');
+    res.redirect('https://www.google.com/');
+
 })
     .post('/test', function(req,res){
         console.log('TEST WORKS');
         // res.send('test works!')
-        res.redirect('https://www.google.com');
+        // res.redirect('https://www.google.com');
+        res.redirect('https://www.google.com/');
+
     });
 
+var distDir = __dirname + "/dist/";
+app.use(express.static(distDir));
 app.get('/', function(req, res, next) {
-    res.sendFile(__dirname + '/index.html');
+    res.sendFile(__dirname + '/dist/index.html');
 });
-
-var corsOptions = {
-  origin: 'http://localhost:4200',
-  optionsSuccessStatus: 200 // some legacy browsers (IE11, various SmartTVs) choke on 204
-}
-
-app.post('/api/paypal/payment/create', cors(corsOptions), function(req, res){
-
-  //   console.log(req.body);
-  //   { recipient_name: 'Betsy Buyer',
-  // line1: '111 First Street',
-  // city: 'Saratoga',
-  // country_code: 'US',
-  // postal_code: '95070',
-  // state: '' }
-
-// Build PayPal payment request
-var payReq = JSON.stringify({
-  intent:'sale',
-  payer:{
-    payment_method:'paypal'
-  },
-  redirect_urls:{
-    return_url: process.env.app_url + '/api/paypal/payment/execute',
-    cancel_url: process.env.app_url + '/cancel'
-  },
-  "transactions": [{
-      "item_list": {
-          "items": [{
-              "name": "item",
-              "sku": "item",
-              "price": "1.00",
-              "currency": "USD",
-              "quantity": 1
-          }],
-          "shipping_address":
-          {
-              "recipient_name": "Betsy Buyer",
-              "line1": "111 First Street",
-              "city": "Saratoga",
-              "country_code": "US",
-              "postal_code": "95070",
-              "state": "CA"
-          }
-      },
-      "amount": {
-          "currency": "USD",
-          "total": "1.00"
-      },
-      "description": "This is the payment description."
-  }]
-});
-
-paypal.payment.create(payReq, function(error, payment){
-  var links = {};
-
-  if(error){
-    console.error(JSON.stringify(error));
-  } else {
-    // Capture HATEOAS links
-    payment.links.forEach(function(linkObj){
-      links[linkObj.rel] = {
-        href: linkObj.href,
-        method: linkObj.method
-      };
-    })
-
-    // If redirect url present, redirect user
-    if (links.hasOwnProperty('approval_url')){
-      //REDIRECT USER TO links['approval_url'].href
-      console.log('approval_url:',links['approval_url']);
-
-      res.redirect(links['approval_url'].href);
-      // res.send(links['approval_url'].href);
-    } else {
-      console.error('no redirect URI present');
-    }
-  }
-});
-
-});  // end of creation on paypal payment
-
-app.use('/api/paypal/payment/execute',function(req,res){
-    console.log('PayerID:',req.query.PayerID);
-    console.log('paymentId:',req.query.paymentId);
-    // res.send('works!');
-    var execute_payment_json = {
-        "payer_id": req.query.PayerID,
-        "transactions": [{
-            "amount": {
-                "currency": "USD",
-                "total": "1.00"
-            }
-        }]
-    };
-    var paymentId = req.query.paymentId;
-    paypal.payment.execute(paymentId, execute_payment_json, function (error, payment) {
-        if (error) {
-            console.log(error.response);
-            throw error;
-        } else {
-            console.log("Get Payment Response");
-            console.log(JSON.stringify(payment));
-            res.send(JSON.stringify(payment));
-        }
-    });
-
-})
-
-
 
 // initialize the routes
 app.use('/api',api);

@@ -14,7 +14,7 @@ export class AddressService {
   shipAddress(address:Address){
       const httpOptions = {
           headers: new HttpHeaders({
-              'Content-Type':  'application/json'
+               'Content-Type':  'application/json'    //application/x-www-form-urlencoded  multipart/form-data
             })
       };
 
