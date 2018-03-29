@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
-import { Hero }    from '../hero';
 import { Address }    from '../address';
+import {AddressService} from '../address.service';
 
 
 
@@ -11,46 +11,30 @@ import { Address }    from '../address';
 })
 export class ShipAddressComponent implements OnInit {
 
+  constructor(public addressService:AddressService) { }
 
-      powers = ['Really Smart', 'Super Flexible',
-                'Super Hot', 'Weather Changer'];
+      // powers = ['Really Smart', 'Super Flexible',
+      //           'Super Hot', 'Weather Changer'];
 
-      model = new Hero(18, 'Dr IQ', this.powers[0], 'Chuck Overstreet');
       address = new Address('Betsy Buyer',"111 First Street","Saratoga" ,"US","95070","CA");
 
 
-      submitted = false;
+      onSubmit(event) {
+        this.address.recipient_name = event.target[0].value;
+        this.address.line1 = event.target[1].value;
+        this.address.city = event.target[2].value;
+        this.address.country_code = event.target[3].value;
+        this.address.postal_code = event.target[4].value;
+        this.address.state = event.target[5].value;
+        console.log(this.address);
 
-      onSubmit() { this.submitted = true; }
+          this.addressService.shipAddress(this.address)
+                             .subscribe();
 
-      // TODO: Remove this when we're done
-      get diagnostic() { return JSON.stringify(this.model); }
-
-      newHero() {
-        this.model = new Hero(42, '', '');
       }
-
-      skyDog(): Hero {
-        let myHero =  new Hero(42, 'SkyDog',
-                               'Fetch any object at any distance',
-                               'Leslie Rollover');
-        console.log('My hero is called ' + myHero.name); // "My hero is called SkyDog"
-        return myHero;
-      }
-
-      //////// NOT SHOWN IN DOCS ////////
-
-      // Reveal in html:
-      //   Name via form.controls = {{showFormControls(heroForm)}}
-      showFormControls(form: any) {
-        return form && form.controls['name'] &&
-        form.controls['name'].value; // Dr. IQ
-      }
-
-
-  constructor() { }
 
   ngOnInit() {
+
   }
 
 }

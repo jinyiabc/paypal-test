@@ -54,8 +54,8 @@ app.use(session({
 
 app.get('/test',function(req,res){
     console.log('GET WORKS');
-    res.send({"data":"test"})
-    // res.redirect('https://www.google.com');
+    // res.send({"data":"test"})
+    res.redirect('https://www.google.com');
 })
     .post('/test', function(req,res){
         console.log('TEST WORKS');
@@ -67,10 +67,21 @@ app.get('/', function(req, res, next) {
     res.sendFile(__dirname + '/index.html');
 });
 
-app.post('/api/paypal/payment/create', function(req, res){
+var corsOptions = {
+  origin: 'http://localhost:4200',
+  optionsSuccessStatus: 200 // some legacy browsers (IE11, various SmartTVs) choke on 204
+}
 
-    // console.log(req.body.user.name);
-    // console.log(req.body.user.email);
+app.post('/api/paypal/payment/create', cors(corsOptions), function(req, res){
+
+  //   console.log(req.body);
+  //   { recipient_name: 'Betsy Buyer',
+  // line1: '111 First Street',
+  // city: 'Saratoga',
+  // country_code: 'US',
+  // postal_code: '95070',
+  // state: '' }
+
 // Build PayPal payment request
 var payReq = JSON.stringify({
   intent:'sale',
@@ -90,7 +101,8 @@ var payReq = JSON.stringify({
               "currency": "USD",
               "quantity": 1
           }],
-          "shipping_address": {
+          "shipping_address":
+          {
               "recipient_name": "Betsy Buyer",
               "line1": "111 First Street",
               "city": "Saratoga",
